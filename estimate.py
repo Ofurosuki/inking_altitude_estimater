@@ -29,13 +29,35 @@ pcd_tree = o3d.geometry.KDTreeFlann(point_cloud)
 point_cloud.points = o3d.utility.Vector3dVector(filtered_points)
 point_cloud.colors = o3d.utility.Vector3dVector(filtered_colors)
 
+#load waypoints file
+csv_waypoints = 'waypoints.csv'
+waypoints = pd.read_csv(csv_waypoints)
+assert set(waypoints.columns) == {'x', 'y', 'z'}, "CSV must contain x, y, z columns"
+waypoints_array = waypoints.values
+
 
 print("Find its neighbors with distance less than 0.2, and paint them green.")
-[k, idx, _] = pcd_tree.search_radius_vector_3d([1,1,0], 0.2)
-np.asarray(point_cloud.colors)[idx[1:], :] = [0, 1, 0]
-# average neighbors z value 
-average_z = np.mean(filtered_points[idx[0:], 2])
-print("Average z value of neighbors:", average_z)
+# [k, idx, _] = pcd_tree.search_radius_vector_3d([1,1,0], 0.2)
+# np.asarray(point_cloud.colors)[idx[1:], :] = [0, 1, 0]
+# # average neighbors z value 
+# average_z = np.mean(filtered_points[idx[0:], 2])
+# print("Average z value of neighbors:", average_z)
+
+
+unevenness = []
+def estimate_unevenness(pcd, k, radius):
+    pcd_tree = o3d.geometry.KDTreeFlann(pcd)
+    for i in range(len(pcd.points)):
+        [k, idx, _] = pcd_tree.search_radius_vector_3d(pcd.points[i], radius)
+        average_z = np.mean(np.asarray(pcd.points)[idx[1:], 2])
+        unevenness.append(pcd.points[i][2] - average_z)
+    return unevenness
+
+def write_to_csv(filename):
+    data = pd.DataFrame(unevenness, columns=['unevenness'])
+    data.to_csv(filename, index=False)
+
+
 
 # Step 4: Visualize the point cloud
 grid=grd.gen_grid(1, 10)
