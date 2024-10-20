@@ -2,16 +2,21 @@ import open3d as o3d
 import pandas as pd
 import numpy as np
 import grid as grd
-csv_file = 'random_data.csv'  # use world frame data because the value fro waypoint is in world frame
+import pickle as pkl
 
-data = pd.read_csv(csv_file)
+use_pickle = False
+if use_pickle:
+    with open('point_cloud.pkl', 'rb') as f:
+        point_cloud = pkl.load(f)
+else:
+    csv_file = 'random_data.csv'  # use world frame data because the value fro waypoint is in world frame
+    data = pd.read_csv(csv_file)
+    # Ensure the CSV file has the correct columns
+    assert set(data.columns) == {'x', 'y', 'z', 'R', 'G', 'B'}, "CSV must contain x, y, z, R, G, B columns"
 
-# Ensure the CSV file has the correct columns
-assert set(data.columns) == {'x', 'y', 'z', 'R', 'G', 'B'}, "CSV must contain x, y, z, R, G, B columns"
-
-# Step 2: Extract point coordinates and color information
-points = data[['x', 'y', 'z']].values
-colors = data[['R', 'G', 'B']].values   # Normalize color values to [0, 1]
+    # Step 2: Extract point coordinates and color information
+    points = data[['x', 'y', 'z']].values
+    colors = data[['R', 'G', 'B']].values   # Normalize color values to [0, 1]
 
 # Step 3: Create an Open3D PointCloud object
 point_cloud = o3d.geometry.PointCloud()
@@ -57,6 +62,9 @@ def write_to_csv(filename):
     data = pd.DataFrame(unevenness, columns=['unevenness'])
     data.to_csv(filename, index=False)
 
+# save to pickle
+with open('point_cloud.pkl', 'wb') as f:
+    pkl.dump(point_cloud, f)
 
 
 # Step 4: Visualize the point cloud
