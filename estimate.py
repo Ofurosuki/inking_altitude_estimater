@@ -5,10 +5,11 @@ import grid as grd
 import pickle as pkl
 import open3d as o3d
 import pandas as pd
+import math
 
 use_pickle = True
 if use_pickle:
-    with open('point_cloud_light.pkl', 'rb') as f:
+    with open('point_cloud_light_tokura.pkl', 'rb') as f:
         points = pkl.load(f)
 else:
     csv_file = 'random_data.csv'  # use world frame data because the value fro waypoint is in world frame
@@ -25,9 +26,11 @@ point_cloud = o3d.geometry.PointCloud()
 point_cloud.points = o3d.utility.Vector3dVector(points)
 point_cloud.colors = o3d.utility.Vector3dVector([0.5, 0.5, 0.5] for _ in range(len(points)))
 # Load waypoints file
-csv_waypoints = 'waypoints.csv'
+csv_waypoints = 'C:\\Users\\smcon\\Desktop\\MTL_control_dev\\mtl_motor_control\\waypoints.csv'  # left handed
 waypoints = pd.read_csv(csv_waypoints)
 waypoints_points = waypoints[['x', 'y', 'z']].values
+# Switch x and y coordinates in waypoints_points
+waypoints_points = waypoints_points[:, [1, 0, 2]]  # lefthanded to righthanded 
 print(waypoints_points)
 
 # Create a point cloud of waypoints
@@ -41,7 +44,7 @@ assert set(waypoints.columns) == {'x', 'y', 'z'}, "CSV must contain x, y, z colu
 waypoints_array = waypoints.values
 
 
-print("Find its neighbors with distance less than 0.2, and paint them green.")
+print("Find its neighbors with distance less than 0.2, and paint them blue.")
 # [k, idx, _] = pcd_tree.search_radius_vector_3d([1,1,0], 0.2)
 # np.asarray(point_cloud.colors)[idx[1:], :] = [0, 1, 0]
 # # average neighbors z value 
@@ -56,18 +59,22 @@ def estimate_unevenness(pcd, radius,target):
         if target.points[i][1] < -1.0:
             radius = 0.1
         [k, idx, _] = pcd_tree.search_radius_vector_3d(target.points[i], radius)
-        print("num:", len(idx))
+        #print("num:", len(idx))
         np.asarray(pcd.colors)[idx[1:], :] = [0, 0, 1]
         average_z = np.mean(np.asarray(pcd.points)[idx[1:], 2])
+        n = 6  # 切り捨てしたい桁
+        #y = math.floor(average_z * 10 ** n) / (10 ** n)
         unevenness.append(average_z)
     return unevenness
 
 def write_to_csv(filename):
-    data = pd.DataFrame(unevenness, columns=['unevenness'])
-    data.to_csv(filename, index=False)
+    data = {'x': waypoints_points[:, 0], 'y': waypoints_points[:, 1], 'z': unevenness}
+    df = pd.DataFrame(data)
+    df.to_csv(filename, index=False)
 
 
-print(estimate_unevenness(point_cloud, 0.03, waypoints_cloud))
+print(estimate_unevenness(point_cloud, 0.038, waypoints_cloud))
+write_to_csv('C:\\Users\\smcon\\Desktop\\MTL_control_dev\\mtl_motor_control\\waypoints_offset.csv')
 
 # Step 4: Visualize the point cloud
 grid=grd.gen_grid(0.1, 10)
