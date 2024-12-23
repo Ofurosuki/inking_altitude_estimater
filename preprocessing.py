@@ -5,7 +5,7 @@ import grid as grd
 import numpy as np
 
 
-use_pickle = True
+use_pickle = False
 if use_pickle:
     with open('point_cloud.pkl', 'rb') as f:
         points = pkl.load(f)
@@ -21,7 +21,7 @@ else:
     colors = data[['R', 'G', 'B']].values   # Normalize color values to [0, 1]
 
     # Remove points with z value more than 0
-    points = points[points[:, 2] <= -10]
+    #points = points[points[:, 2] <=0.5]
     
 
     # Remove points with x value less than -500
@@ -36,11 +36,19 @@ else:
     with open('point_cloud.pkl', 'wb') as f:
         pkl.dump(points, f)
 
+
 # Step 3: Create an Open3D PointCloud object
-points = points[points[:, 2] <= -0.3]
-translation = np.array([0, 0, 0.70])
-points += translation
-with open('point_cloud_light.pkl', 'wb') as f:
+#points = points[points[:, 2] <= -0.3]
+#points += translation
+points=points[points[:, 2] <= 0.3]
+points = points[points[:, 1] >= 0]
+points = points[points[:, 0] >= 0]
+points = points[points[:, 0] <= 1.5]
+#switch x and y
+points[:, [0, 1]] = points[:, [1, 0]]  # lefthanded to righthanded for visualization
+#translation = np.array([0, 0.03, 0.0])
+#points += translation
+with open('point_cloud_light_tokura.pkl', 'wb') as f:
         pkl.dump(points, f)
 
 point_cloud = o3d.geometry.PointCloud()
