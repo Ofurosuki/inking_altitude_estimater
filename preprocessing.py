@@ -5,7 +5,7 @@ import grid as grd
 import numpy as np
 
 
-use_pickle = False
+use_pickle = True
 if use_pickle:
     with open('point_cloud.pkl', 'rb') as f:
         points = pkl.load(f)

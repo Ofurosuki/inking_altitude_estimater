@@ -7,7 +7,7 @@ source_points = np.array([[0.295351,0.189433,-0.003291],
                      [0.002438,0.895326,-0.010552]])  # ソース点群
 
 target_points = np.array([[0.3, 0.2, 0.0],
-                     [0.6977, 0.0, 0.0],
+                     [0.677, 0.0, 0.0],
                      [0.7, 0.9, 0.0],
                      [0.0, 0.9, 0.0]])  # ターゲット点群
 
@@ -36,6 +36,11 @@ transformation_matrix[:3, 3] = t
 
 # ソース点群を変換
 source_transformed = (R @ source_points.T).T + t
+print("Source points:")
+print(source_transformed)
+
+print("Target points:")
+print(target_points)
 
 # 変換行列を出力
 print("Transformation matrix:")
@@ -55,6 +60,7 @@ target_pc.paint_uniform_color([0, 1, 0])  # 緑色
 # ソース点群を変換して表示
 source_pc_transformed = o3d.geometry.PointCloud()
 source_pc_transformed.points = o3d.utility.Vector3dVector(source_transformed)
+source_pc_transformed.paint_uniform_color([0, 0, 1])  # 青色
 
 # 点群を重ねて表示
-o3d.visualization.draw_geometries([source_pc_transformed, target_pc])
+o3d.visualization.draw_geometries([source_pc,source_pc_transformed, target_pc])

@@ -26,7 +26,8 @@ point_cloud = o3d.geometry.PointCloud()
 point_cloud.points = o3d.utility.Vector3dVector(points)
 point_cloud.colors = o3d.utility.Vector3dVector([0.5, 0.5, 0.5] for _ in range(len(points)))
 # Load waypoints file
-csv_waypoints = 'C:\\Users\\smcon\\Desktop\\MTL_control_dev\\mtl_motor_control\\waypoints.csv'  # left handed
+#csv_waypoints = 'C:\\Users\\smcon\\Desktop\\MTL_control_dev\\mtl_motor_control\\waypoints.csv'  # left handed
+csv_waypoints = 'waypoints.csv'  # right handed
 waypoints = pd.read_csv(csv_waypoints)
 waypoints_points = waypoints[['x', 'y', 'z']].values
 # Switch x and y coordinates in waypoints_points
