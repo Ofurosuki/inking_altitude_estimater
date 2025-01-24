@@ -1,15 +1,26 @@
 import numpy as np
+import crosspoint
 
 # 4点のサンプル点群データの生成（それぞれ対応する点が分かっているとき / 同じ順序が対応点）
-source_points = np.array([[0.295351,0.189433,-0.003291],
-                     [0.666709,-0.014655,-0.004194],
-                     [0.698039,0.887681,-0.009014],
-                     [0.002438,0.895326,-0.010552]])  # ソース点群
+# source_points = np.array([[0.295351,0.189433,-0.003291],
+#                      [0.666709,-0.014655,-0.004194],
+#                      [0.698039,0.887681,-0.009014],
+#                      [0.002438,0.895326,-0.010552]])  # ソース点群
 
-target_points = np.array([[0.3, 0.2, 0.0],
-                     [0.677, 0.0, 0.0],
-                     [0.7, 0.9, 0.0],
-                     [0.0, 0.9, 0.0]])  # ターゲット点群
+# target_points = np.array([[0.3, 0.2, 0.0],
+#                      [0.677, 0.0, 0.0],
+#                      [0.7, 0.9, 0.0],
+#                      [0.0, 0.9, 0.0]])  # ターゲット点群
+
+source_points = np.array([crosspoint.crosspoint(0),
+                        crosspoint.crosspoint(1),
+                        crosspoint.crosspoint(2),
+                        crosspoint.crosspoint(3)])  # ソース点群
+
+target_points = np.array([[0.1, 0.2, 0.0],
+                          [0.5,0.2,0.0],
+                          [0.4,0.8,0.0],
+                          [0.1,0.8,0.0]])  # ターゲット点群
 
 # 重心を計算
 source_center = np.mean(source_points, axis=0)
@@ -36,7 +47,7 @@ transformation_matrix[:3, 3] = t
 
 # ソース点群を変換
 source_transformed = (R @ source_points.T).T + t
-print("Source points:")
+print("Source transformed:")
 print(source_transformed)
 
 print("Target points:")
