@@ -41,8 +41,8 @@ R=np.array([normalize([a2, b2, c2]),
             normalize([a3, b3, c3]),
          normalize([-a1, -b1, -c1])])
 R=R.T  
-# print("R=")
-# print(R)
+print("R=")
+print(R)
 
 # point=np.array([0.5,0.5,0.5])
 # point_modified=R*(point+intersection)
