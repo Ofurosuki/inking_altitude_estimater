@@ -28,10 +28,10 @@ def visualize_yz_plane(pcd_file, x_value, tolerance=0.05):
 
     # Plotting y-z plane
     #plt.figure(figsize=(8, 6))
-    y=np.linspace(0.1,0.4,100)
+    y=np.linspace(0.1,0.3,100)
     z=y*0+0.005
     plt.plot(y,z,color='red')
-    y2=np.linspace(0.4,0.7,100)
+    y2=np.linspace(0.3,0.7,100)
     z2=y2*0+0.01
     plt.plot(y2,z2,color='red')
     plt.scatter(yz_plane_points[:, 0], yz_plane_points[:, 1], s=1)  # Plot Y (X-axis) vs Z (Y-axis)
@@ -41,9 +41,13 @@ def visualize_yz_plane(pcd_file, x_value, tolerance=0.05):
     #plt.gca().invert_yaxis()  # Optional: Invert Y-axis for typical orientation
     plt.grid(True)
     
-
+import platform
 # Example usage:
-pcd_file = '/home/nextryo/Downloads/output_crop.pcd'
+if platform.system() == 'Windows':
+    print('Platform: Windows')
+    pcd_file = 'C:\\Users\\smcon\\Desktop\\MTL_control_dev\\mtl_motor_control\\output_0221_2.pcd'
+else:
+    pcd_file = '/home/nextryo/Downloads/output_crop.pcd'
 x_value = 0.1  # User-specified x-value
 tolerance = 0.05  # Margin around the x-value
 visualize_yz_plane(pcd_file, x_value, tolerance)
