@@ -1,2 +1,3 @@
 venv
 points_cloud.pkl
+__pycache__/*
