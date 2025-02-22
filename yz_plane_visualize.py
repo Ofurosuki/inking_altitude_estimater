@@ -75,11 +75,13 @@ import platform
 # Example usage:
 if platform.system() == 'Windows':
     print('Platform: Windows')
-    pcd_file = './output_0221_2.pcd'
+    #pcd_file = './output_0221_2.pcd'
+    pcd_file = 'C:\\Users\\smcon\\Desktop\\MTL_control_dev\\mtl_motor_control\\output_0222_4.pcd'
 else:
-    pcd_file = '/home/nextryo/Downloads/output_crop.pcd'
+    x=0
+    #pcd_file = '/home/nextryo/Downloads/output_crop.pcd'
 x_value = 0.1  # User-specified x-value
-tolerance = 0.05  # Margin around the x-value
+tolerance = 0.015  # Margin around the x-value
 visualize_yz_plane(pcd_file, x_value, tolerance)
 #plt.legend(['calibrated'])
 #pcd_file_uncalibrated='/home/nextryo/Downloads/output_uncalibrated_crop.pcd'
@@ -97,5 +99,5 @@ visualize_yz_plane('./output_0221_2_transformed.pcd', x_value, tolerance)
 
 plt.show()
 
-visualize_xz_plane('./output_0221_2_transformed.pcd', 0.2, 0.05)
-plt.show()
+#visualize_xz_plane('./output_0221_2_transformed.pcd', 0.2, 0.05)
+#plt.show()
