@@ -1,6 +1,36 @@
 import open3d as o3d
 import numpy as np
 import matplotlib.pyplot as plt
+import LeastSquare as ls
+
+def visualize_xz_plane(pcd_file, y_value, tolerance=0.05):
+    """
+    Load a PCD file and visualize the x-z plane of points within a margin of the specified y-value.
+
+    :param pcd_file: Path to the PCD file.
+    :param y_value: The y-coordinate where we want to extract the x-z plane.
+    :param tolerance: The margin within which y-values will be considered.
+    """
+    # Load PCD file
+    pcd = o3d.io.read_point_cloud(pcd_file)
+    points = np.asarray(pcd.points)
+
+    # Select points within the tolerance range of y_value
+    mask = (points[:, 1] >= y_value - tolerance) & (points[:, 1] <= y_value + tolerance)
+    xz_plane_points = points[mask][:, [0, 2]]  # Extract x and z coordinates
+
+    if xz_plane_points.size == 0:
+        print(f"No points found within y = {y_value} ± {tolerance}")
+        return
+
+    # Plotting x-z plane
+    plt.figure(figsize=(8, 6))
+    plt.scatter(xz_plane_points[:, 0], xz_plane_points[:, 1], s=1)  # Plot X (X-axis) vs Z (Y-axis)
+    plt.xlabel('X-axis')
+    plt.ylabel('Z-axis')
+    plt.title(f'X-Z Plane at Y ≈ {y_value} (±{tolerance})')
+    #plt.gca().invert_yaxis()  # Optional: Invert Y-axis for typical orientation
+    plt.grid(True)
 
 def visualize_yz_plane(pcd_file, x_value, tolerance=0.05):
     """
@@ -45,15 +75,27 @@ import platform
 # Example usage:
 if platform.system() == 'Windows':
     print('Platform: Windows')
-    pcd_file = 'C:\\Users\\smcon\\Desktop\\MTL_control_dev\\mtl_motor_control\\output_0221_2.pcd'
+    pcd_file = './output_0221_2.pcd'
 else:
     pcd_file = '/home/nextryo/Downloads/output_crop.pcd'
 x_value = 0.1  # User-specified x-value
 tolerance = 0.05  # Margin around the x-value
 visualize_yz_plane(pcd_file, x_value, tolerance)
 #plt.legend(['calibrated'])
-pcd_file_uncalibrated='/home/nextryo/Downloads/output_uncalibrated_crop.pcd'
-visualize_yz_plane(pcd_file_uncalibrated, x_value, tolerance)
+#pcd_file_uncalibrated='/home/nextryo/Downloads/output_uncalibrated_crop.pcd'
+#visualize_yz_plane(pcd_file_uncalibrated, x_value, tolerance)
 #plt.legend(['uncalibrated'])
+pcd = o3d.io.read_point_cloud(pcd_file)
+points = np.asarray(pcd.points)
 
+R,t=ls.least_square()  #load R,t from least_square.py
+transformed_points = (R @ points.T).T + t
+o3d.io.write_point_cloud('./output_0221_2_transformed.pcd', o3d.geometry.PointCloud(points=o3d.utility.Vector3dVector(transformed_points)))
+visualize_yz_plane('./output_0221_2_transformed.pcd', x_value, tolerance)
+
+
+
+plt.show()
+
+visualize_xz_plane('./output_0221_2_transformed.pcd', 0.2, 0.05)
 plt.show()
