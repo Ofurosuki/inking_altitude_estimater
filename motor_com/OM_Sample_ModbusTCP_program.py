@@ -4,9 +4,31 @@ import array
 import time
 import sys
 from socket import inet_aton
+import param
+
+
+
+def decimal_to_hexadecimal(value):
+    byte_array = value.to_bytes(4, byteorder='big')
+    print(hex(byte_array[0]))
+    print(hex(byte_array[1]))
+    print(hex(byte_array[2]))
+    print(hex(byte_array[3]))
+    return byte_array
+    
 
 def main():
     # トランザクションID用カウンタ
+    # [pos_0,pos_1,pos_2,pos_3]=decimal_to_hexadecimal(8500)
+    # print(pos_0)
+    # print(pos_1)
+    # print(hex(pos_2))
+    # print(hex(pos_3))
+    # return
+    pos_0=0x00
+    pos_1=0x00
+    pos_2=0x00
+    pos_3=0x00
     val = 0
 
     # IPアドレス
@@ -214,7 +236,7 @@ def main():
                             0x00, 0x00,         # ライトデータ(下位)
                             0x00, 0x00          # ライトデータ(上位)
                         ]
-
+    
     # ダイレクトデータ運転を実行するクエリ
     frm_ExeOpe =        [
                             0x00, 0x00,         # プロトコルID :0x0000
@@ -228,10 +250,12 @@ def main():
                             0x00, 0x00,         # 運転データNoの選択
                             0x01, 0x00,         # 固定I/O (IN) TRIG ON
                             0x00, 0x01,         # ダイレクトデータ運転　運転方式                :2 相対位置決め（指令位置基準）#modified 0x02 to 0x01
-                            0xFE, 0x20,         # ダイレクトデータ運転　位置 (下位)             :8500 step  0x2134
-                            0x00, 0x00,         # ダイレクトデータ運転　位置 (上位)
-                            0x05, 0xDC,         # ダイレクトデータ運転　速度 (下位)             :2000 Hz
-                            0x00, 0x00,         # ダイレクトデータ運転　速度 (上位)
+                            pos_2, pos_3,         # ダイレクトデータ運転　位置 (下位)             :8500 step  0x2134
+                            #0x27, 0x20,
+                            pos_0, pos_1,         # ダイレクトデータ運転　位置 (上位)
+                            #0x05, 0xDC,         # ダイレクトデータ運転　速度 (下位)             :2000 Hz
+                            0x86,0xA0,
+                            0x00, 0x01,         # ダイレクトデータ運転　速度 (上位)
                             0x07, 0xD0,         # ダイレクトデータ運転　起動・変速レート (下位)  :1.5 kHz/s
                             0x00, 0x00,         # ダイレクトデータ運転　起動・変速レート (上位)
                             0x05, 0xDC,         # ダイレクトデータ運転　停止レート (下位)       :1.5 kHz/s
@@ -259,8 +283,8 @@ def main():
                             0x00, 0x00,         # 運転データNoの選択
                             0x00, 0x00,         # 固定I/O (IN) TRIG OFF
                             0x00, 0x01,         # ダイレクトデータ運転　運転方式                :2 相対位置決め（指令位置基準）
-                            0x21, 0x34,         # ダイレクトデータ運転　位置 (下位)             :8500 step
-                            0x00, 0x00,         # ダイレクトデータ運転　位置 (上位)
+                            pos_2, pos_3,         # ダイレクトデータ運転　位置 (下位)             :8500 step  0x2134
+                            pos_0, pos_1,         # ダイレクトデータ運転　位置 (上位)
                             0x05, 0xDC,         # ダイレクトデータ運転　速度 (下位)             :2000 Hz
                             0x00, 0x00,         # ダイレクトデータ運転　速度 (上位)
                             0x07, 0xD0,         # ダイレクトデータ運転　起動・変速レート (下位)  :1.5 kHz/s
@@ -313,12 +337,28 @@ def main():
 
     # 'q'または'Q'が入力されるまでループ
     while True:
+
+        frm_count_array = frm_count.to_bytes(2, "big")
+        wkfrm = array.array('B', [])
+        wkfrm.extend(frm_count_array)
+        wkfrm.extend(frm_Mon)
+
+        # クエリ送信
+        client.sendto(wkfrm,(address,port))
+        rcvData  = client.recv(BUFSIZE)
+        #print(rcvData)
+        
+        feedbackPos = int.from_bytes(array.array('B', [rcvData[19], rcvData[20], rcvData[17], rcvData[18] ]), byteorder='big', signed=True)
+        #print("Position:",feedbackPos)
+        
         print("\n")
         print("1:Monitor")
         print("2:Set Operation Data")
         print("3:Operate")
-        print("4:Execute Direct Data Operation")
+        print("4:Execute Direct Data Operation(Absolute)")
+        print("5:Execute Direct Data Operation (Relative)")
         print("Q:Quit program")
+        print(f"Current Position: {feedbackPos}")
         val = input()
 
 
@@ -337,10 +377,10 @@ def main():
             # クエリ送信
             client.sendto(wkfrm,(address,port))
             rcvData  = client.recv(BUFSIZE)
-            print(rcvData)
+            #print(rcvData)
             
             feedbackPos = int.from_bytes(array.array('B', [rcvData[19], rcvData[20], rcvData[17], rcvData[18] ]), byteorder='big', signed=True)
-            print(feedbackPos)
+            print("Position:",feedbackPos)
             frm_count += 1
 
         # 運転データ No.0 の位置、速度を書き換え
@@ -429,11 +469,23 @@ def main():
 
         # ダイレクトデータ運転を実行する
         elif val == '4':
+            print(f"input step number(absolute) between {param.lower_lim} and {param.upper_lim}")
+            step = input()
+            if int(step)<param.lower_lim or int(step)>param.upper_lim:
+                print("\x1b[41mInput value is out of range \x1b[49m")
+                continue
+            
             # ダイレクトデータ運転を実行するクエリ
             # 送信用のクエリ作成
             frm_count_array = frm_count.to_bytes(2, "big")
             wkfrm = array.array('B', [])
             wkfrm.extend(frm_count_array)
+            pos_0, pos_1,pos_2,pos_3 = decimal_to_hexadecimal(int(step))
+            print("pos:",step)
+            frm_ExeOpe[19]=pos_2
+            frm_ExeOpe[20]=pos_3
+            frm_ExeOpe[21]=pos_0
+            frm_ExeOpe[22]=pos_1
             wkfrm.extend(frm_ExeOpe)
 
             client.sendto(wkfrm,(address,port))
@@ -451,8 +503,63 @@ def main():
 
             client.sendto(wkfrm,(address,port))
             rcvData  = client.recv(BUFSIZE)
+
+           # print(rcvData)
+           # print("rcvData[0]:",rcvData[7])
+            frm_count += 1
+        elif val == '5':
+            while True:
+                print("input step number(relative)")
+                step = input()
+                frm_count_array = frm_count.to_bytes(2, "big")
+                wkfrm = array.array('B', [])
+                wkfrm.extend(frm_count_array)
+                wkfrm.extend(frm_Mon)
+
+                # クエリ送信
+                client.sendto(wkfrm,(address,port))
+                rcvData  = client.recv(BUFSIZE)
+                #print(rcvData)
+                
+                feedbackPos = int.from_bytes(array.array('B', [rcvData[19], rcvData[20], rcvData[17], rcvData[18] ]), byteorder='big', signed=True)
+                if(feedbackPos+int(step)>param.lower_lim and feedbackPos+int(step)<param.upper_lim):
+                    break
+                else:
+                    print("\x1b[41mInput value is out of range \x1b[49m")
+            frm_count_array = frm_count.to_bytes(2, "big")
+            wkfrm = array.array('B', [])
+            wkfrm.extend(frm_count_array)
+            pos_0, pos_1,pos_2,pos_3 = decimal_to_hexadecimal(feedbackPos+int(step))
+            print(f"target pos:{feedbackPos+int(step)}")
+            #continue
+            #print("pos:",step)
+            frm_ExeOpe[19]=pos_2
+            frm_ExeOpe[20]=pos_3
+            frm_ExeOpe[21]=pos_0
+            frm_ExeOpe[22]=pos_1
+            wkfrm.extend(frm_ExeOpe)
+
+            client.sendto(wkfrm,(address,port))
+            rcvData  = client.recv(BUFSIZE)
             print(rcvData)
             frm_count += 1
+            time.sleep(0.1)
+
+            # ダイレクトデータ運転のトリガをOFFするクエリ
+            # 送信用のクエリ作成
+            frm_count_array = frm_count.to_bytes(2, "big")
+            wkfrm = array.array('B', [])
+            wkfrm.extend(frm_count_array)
+            wkfrm.extend(frm_ExeOpe_TrgOFF)
+
+            client.sendto(wkfrm,(address,port))
+            rcvData  = client.recv(BUFSIZE)
+
+           # print(rcvData)
+           # print("rcvData[0]:",rcvData[7])
+            frm_count += 1
+            
+
         else:
             continue
 

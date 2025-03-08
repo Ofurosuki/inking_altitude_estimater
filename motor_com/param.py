@@ -1,0 +1,2 @@
+upper_lim=333200
+lower_lim=158650
