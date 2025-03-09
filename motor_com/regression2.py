@@ -41,4 +41,5 @@ def regression():
     plt.show()
 
 
-regression()
+if __name__ == '__main__':
+    regression()
