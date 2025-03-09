@@ -31,7 +31,7 @@ class Estimate:
     
     
     def load_lidar2robot_rotation(self):
-        with open('./estimate/rVec.csv', 'r') as file:
+        with open('./estimate/vector/rVec.csv', 'r') as file:
             reader = csv.reader(file)
             data = list(reader)
         self.__lidar2robot_rotation = np.array(data, dtype=float)
