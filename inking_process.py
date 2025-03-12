@@ -25,11 +25,13 @@ print(csv_data)
 
 # Parse the CSV data into a list of line segments
 lines = []
+offset_x=0
+offset_y=0
 for line in csv_data:
     coords = list(map(float, line.split(',')))
     # for i in range(0, len(coords) - 2, 2):  # Iterate over pairs of points
     #   lines.append(((coords[i], coords[i+1]), (coords[i+2], coords[i+3])))
-    lines.append(((coords[0], coords[1]), (coords[3], coords[4])))
+    lines.append(((coords[0]+offset_x, coords[1]+offset_y), (coords[3]+offset_x, coords[4]+offset_y)))
 print(coords)
 print(lines)
 
