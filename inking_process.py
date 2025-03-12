@@ -3,7 +3,7 @@ import matplotlib.animation as animation
 import csv
 
 # Read the CSV file
-csv_file = './mitsui.csv'
+csv_file = './mitsui3.csv'
 
 # import chardet
 # with open(csv_file, "rb") as f:
@@ -36,8 +36,8 @@ print(lines)
 
 # Set up the figure and axis
 fig, ax = plt.subplots()
-ax.set_xlim(0, 300)
-ax.set_ylim(0, 300)
+ax.set_xlim(0, 700)
+ax.set_ylim(0, 200)
 #ax.invert_yaxis()  # Invert y-axis for correct visualization
 ax.set_xlabel('X-axis')
 ax.set_ylabel('Y-axis')
@@ -58,7 +58,7 @@ def update(frame):
     return line_segments
 
 # Create animation
-ani = animation.FuncAnimation(fig, update, frames=len(lines), interval=1000, repeat=False)
+ani = animation.FuncAnimation(fig, update, frames=len(lines), interval=100, repeat=False)
 
 # Show animation
 plt.show()
