@@ -3,7 +3,7 @@ import matplotlib.animation as animation
 import csv
 
 # Read the CSV file
-<<<<<<< HEAD
+
 csv_file = './mitsui5.csv'
 
 # import chardet
@@ -32,7 +32,7 @@ for line in csv_data:
     coords = list(map(float, line.split(',')))
     # for i in range(0, len(coords) - 2, 2):  # Iterate over pairs of points
     #   lines.append(((coords[i], coords[i+1]), (coords[i+2], coords[i+3])))
-<<<<<<< HEAD
+
     lines.append(((coords[0], coords[1]), (coords[3], coords[4])))
 #print(coords)
 #print(lines)
@@ -40,7 +40,7 @@ for line in csv_data:
 
 # Set up the figure and axis
 fig, ax = plt.subplots()
-<<<<<<< HEAD
+
 ax.set_xlim(-10, 700)
 ax.set_ylim(0, 150)
 #ax.invert_yaxis()  # Invert y-axis for correct visualization
