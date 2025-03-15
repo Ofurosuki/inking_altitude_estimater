@@ -3,7 +3,7 @@ import matplotlib.animation as animation
 import csv
 
 # Read the CSV file
-csv_file = './mitsui.csv'
+csv_file = './mitsui5.csv'
 
 # import chardet
 # with open(csv_file, "rb") as f:
@@ -30,14 +30,14 @@ for line in csv_data:
     # for i in range(0, len(coords) - 2, 2):  # Iterate over pairs of points
     #   lines.append(((coords[i], coords[i+1]), (coords[i+2], coords[i+3])))
     lines.append(((coords[0], coords[1]), (coords[3], coords[4])))
-print(coords)
-print(lines)
+#print(coords)
+#print(lines)
 
 
 # Set up the figure and axis
 fig, ax = plt.subplots()
-ax.set_xlim(0, 300)
-ax.set_ylim(0, 300)
+ax.set_xlim(-10, 700)
+ax.set_ylim(0, 150)
 #ax.invert_yaxis()  # Invert y-axis for correct visualization
 ax.set_xlabel('X-axis')
 ax.set_ylabel('Y-axis')
@@ -58,7 +58,7 @@ def update(frame):
     return line_segments
 
 # Create animation
-ani = animation.FuncAnimation(fig, update, frames=len(lines), interval=1000, repeat=False)
+ani = animation.FuncAnimation(fig, update, frames=len(lines), interval=100, repeat=False)
 
 # Show animation
 plt.show()
